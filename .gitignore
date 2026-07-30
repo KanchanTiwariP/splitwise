@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+
+# Rider
+.idea/
+
+# Visual Studio
+.vs/
+
+# macOS
+.DS_Store
+
+# User files
+*.user
+*.suo
+
+# Logs
+*.log
+**/launchSettings.json
