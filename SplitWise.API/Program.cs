@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using SplitWise.Infrastructure.Persistence;
+using SplitWise.Infrastructure;
 namespace SplitWise.API;
 
 public class Program
@@ -11,7 +14,9 @@ public class Program
         builder.Services.AddSwaggerGen();
         // Add services to the container.
         builder.Services.AddAuthorization();
-
+        
+    
+        builder.Services.AddInfrastructure(builder.Configuration);
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
