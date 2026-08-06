@@ -15,6 +15,7 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
             .HasMaxLength(100);
         builder.HasOne(x => x.Creator)
             .WithMany(x => x.CreatedGroups)
-            .HasForeignKey(x => x.CreatedBy);
+            .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

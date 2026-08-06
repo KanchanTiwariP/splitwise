@@ -13,11 +13,13 @@ public class GroupMemberConfiguration : IEntityTypeConfiguration<GroupMember>
         
         builder.HasOne(x => x.Group)
             .WithMany(x => x.Members)
-            .HasForeignKey(x => x.GroupId);
+            .HasForeignKey(x => x.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);;
         
 
         builder.HasOne(x => x.User)
             .WithMany(x => x.GroupMembers)
-            .HasForeignKey(x => x.UserId);
+            .HasForeignKey(x => x.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
