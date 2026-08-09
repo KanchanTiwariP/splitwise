@@ -22,7 +22,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Email)
             .IsRequired()
             .HasMaxLength(255);
-
+        
+        builder.Property(x => x.PasswordHash)
+            .IsRequired()
+            .HasMaxLength(255);
+        
         builder.HasIndex(x => x.Email)
             .IsUnique();
     }

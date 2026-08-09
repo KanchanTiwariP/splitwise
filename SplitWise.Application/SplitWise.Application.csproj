@@ -13,14 +13,17 @@
     <ItemGroup>
       <Folder Include="Behaviors\" />
       <Folder Include="Common\" />
-      <Folder Include="DTOs\" />
       <Folder Include="Featues\Authentication\" />
       <Folder Include="Featues\Expenses\" />
       <Folder Include="Featues\Groups\" />
       <Folder Include="Featues\Settlements\" />
-      <Folder Include="Interfaces\" />
       <Folder Include="Mappings\" />
+      <Folder Include="Services\" />
       <Folder Include="Validators\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
     </ItemGroup>
 
 </Project>

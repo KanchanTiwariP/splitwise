@@ -12,7 +12,7 @@ using SplitWise.Infrastructure.Persistence;
 namespace SplitWise.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260806072854_InitialCreate")]
+    [Migration("20260806114841_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -207,6 +207,11 @@ namespace SplitWise.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime>("UpdatedOn")
                         .HasColumnType("datetime2");

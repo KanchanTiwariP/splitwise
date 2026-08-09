@@ -8,6 +8,7 @@ public class User : BaseEntity
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
+    public string PasswordHash { get; set; } = string.Empty;
     public ICollection<GroupMember> GroupMembers { get; set; }= new List<GroupMember>();
     public ICollection<Group> CreatedGroups { get; set; } = new List<Group>();
     public ICollection<Expense> PaidExpenses { get; set; } = new List<Expense>();
