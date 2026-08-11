@@ -10,7 +10,7 @@ namespace SplitWise.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UserController : ControllerBase
+public class UserController : BaseController
 {
     private readonly IUserService _userService;
 
@@ -22,23 +22,15 @@ public class UserController : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> MeAsync()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-            return NotFound();
-        var user = await _userService.GetMeAsync(int.Parse(userId));
+        var user = await _userService.GetMeAsync(CurrentUserId);
         return Ok(user);
     }
     
     [HttpPut("me")]
     public async Task<IActionResult> UpdateMe(UpdateUserRequest request)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (userId == null)
-            return Unauthorized();
-
-        var user = await _userService.UpdateMeAsync(
-            int.Parse(userId),
+         var user = await _userService.UpdateMeAsync(
+            CurrentUserId,
             request);
 
         if (user == null)

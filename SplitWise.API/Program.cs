@@ -41,6 +41,7 @@ public class Program
         builder.Services.AddInfrastructure(builder.Configuration);
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IGroupService, GroupService>();
         
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -67,7 +68,10 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                options.ConfigObject.AdditionalItems["persistAuthorization"] = true;
+            });
         }
         app.UseHttpsRedirection();
         app.UseAuthentication();
