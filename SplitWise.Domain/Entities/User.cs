@@ -11,6 +11,7 @@ public class User : BaseEntity
     public string PasswordHash { get; set; } = string.Empty;
     public ICollection<GroupMember> GroupMembers { get; set; }= new List<GroupMember>();
     public ICollection<Group> CreatedGroups { get; set; } = new List<Group>();
+    public ICollection<Expense> CreatedExpenses { get; set; } = new List<Expense>();
     public ICollection<Expense> PaidExpenses { get; set; } = new List<Expense>();
     public ICollection<ExpenseSplit> ExpenseSplits { get; set; } = new List<ExpenseSplit>();
 

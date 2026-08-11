@@ -25,7 +25,12 @@ public class ExpenseConfiguration : IEntityTypeConfiguration<Expense>
         builder.HasOne(x=>x.Payer)
             .WithMany(x=>x.PaidExpenses)
             .HasForeignKey(x=>x.PaidBy)
-            .OnDelete(DeleteBehavior.Restrict);;
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne(x => x.Creator)
+            .WithMany(x => x.CreatedExpenses)
+            .HasForeignKey(x => x.CreatedBy)
+            .OnDelete(DeleteBehavior.Restrict);
        
     }
 }
