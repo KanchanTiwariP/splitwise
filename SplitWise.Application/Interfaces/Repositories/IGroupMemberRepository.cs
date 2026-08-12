@@ -6,4 +6,5 @@ public interface IGroupMemberRepository
 {
     Task AddMemberAsync(GroupMember groupMember);
     Task<bool> IsActiveMemberAsync(int groupId, int userId);
+    Task<bool> AreActiveMembersAsync(int groupId, IEnumerable<int> userIds);
 }

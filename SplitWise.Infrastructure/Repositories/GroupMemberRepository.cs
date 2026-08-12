@@ -27,4 +27,15 @@ public class GroupMemberRepository : IGroupMemberRepository
                 x.UserId == userId &&
                 x.LeftAt == null);
     }
+
+    public async Task<bool> AreActiveMembersAsync(int groupId, IEnumerable<int> userIds)
+    {
+        var activeMemberCount = await _context.GroupMembers
+            .CountAsync(x =>
+                x.GroupId == groupId &&
+                x.LeftAt == null &&
+                userIds.Contains(x.UserId));
+
+        return activeMemberCount == userIds.Distinct().Count();
+    }
 }

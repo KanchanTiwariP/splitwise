@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
         return services;
     }
 }

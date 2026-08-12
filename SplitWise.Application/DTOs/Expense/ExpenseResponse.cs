@@ -1,13 +1,13 @@
-using SplitWise.Domain.Enums;
-
 namespace SplitWise.Application.DTOs.Expense;
 
-public class CreateExpenseRequest
+public class ExpenseResponse
 {
+    public int Id { get; set; }
     public string Description { get; set; } = string.Empty;
     public decimal TotalAmount { get; set; }
     public DateTime ExpenseDate { get; set; }
-    public SplitType SplitType { get; set; }
     public int PaidBy { get; set; }
-    public List<ExpenseShareRequest> Shares { get; set; } = new();
+    public int GroupId { get; set; }
+
+    public List<ExpenseSplitResponse> Splits { get; set; } = new();
 }

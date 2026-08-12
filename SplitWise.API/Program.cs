@@ -42,6 +42,7 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IGroupService, GroupService>();
+        builder.Services.AddScoped<IExpenseService, ExpenseService>();
         
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
