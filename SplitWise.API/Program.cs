@@ -43,7 +43,8 @@ public class Program
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IGroupService, GroupService>();
         builder.Services.AddScoped<IExpenseService, ExpenseService>();
-        
+        builder.Services.AddScoped<IBalanceService, BalanceService>();
+        builder.Services.AddScoped<ISettlementService, SettlementService>();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
         {

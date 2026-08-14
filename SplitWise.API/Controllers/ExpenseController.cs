@@ -27,4 +27,13 @@ public class ExpenseController :BaseController
             .GetGroupExpensesAsync(CurrentUserId, groupId);
         return Ok(expenses);
     }
+    
+    [HttpGet("{expenseId:int}")]
+    public async Task<IActionResult> GetExpenseById(int expenseId)
+    {
+        var expense = await _expenseService
+            .GetExpenseByIdAsync(CurrentUserId, expenseId);
+
+        return Ok(expense);
+    }
 }

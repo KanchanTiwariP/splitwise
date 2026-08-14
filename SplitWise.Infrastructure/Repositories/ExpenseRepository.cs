@@ -15,7 +15,9 @@ public class ExpenseRepository : IExpenseRepository
     public async Task<Expense?> GetByIdAsync(int expenseId)
     {
         return await _context.Expenses
+            .Include(x => x.Payer)
             .Include(x => x.ExpenseSplits)
+            .ThenInclude(x => x.User)
             .FirstOrDefaultAsync(x => x.Id == expenseId);
     }
 

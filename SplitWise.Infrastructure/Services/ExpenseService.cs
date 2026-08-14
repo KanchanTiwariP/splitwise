@@ -211,4 +211,40 @@ public class ExpenseService : IExpenseService
                 throw new NotImplementedException();
         }
     }
+    
+    public async Task<ExpenseResponse> GetExpenseByIdAsync(
+        int currentUserId,
+        int expenseId)
+    {
+        var expense = await _expenseRepository
+            .GetByIdAsync(expenseId);
+
+        if (expense == null)
+            throw new Exception("Expense not found.");
+
+        var group = await _groupRepository
+            .GetGroupByIdAsync(expense.GroupId, currentUserId);
+
+        if (group == null)
+            throw new Exception(
+                "Expense not found or you are not a member of this group.");
+
+        return new ExpenseResponse
+        {
+            Id = expense.Id,
+            Description = expense.Description,
+            TotalAmount = expense.TotalAmount,
+            ExpenseDate = expense.ExpenseDate,
+            PaidBy = expense.PaidBy,
+            GroupId = expense.GroupId,
+
+            Splits = expense.ExpenseSplits
+                .Select(x => new ExpenseSplitResponse
+                {
+                    UserId = x.UserId,
+                    ShareAmount = x.ShareAmount
+                })
+                .ToList()
+        };
+    }
 }

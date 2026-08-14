@@ -6,4 +6,5 @@ public interface IExpenseService
 {
     Task<ExpenseResponse> CreateExpenseAsync(int currentUserId, int groupId, CreateExpenseRequest request);
     Task<List<ExpenseResponse>> GetGroupExpensesAsync( int currentUserId, int groupId);
+    Task<ExpenseResponse> GetExpenseByIdAsync(int currentUserId,int expenseId);
 }
