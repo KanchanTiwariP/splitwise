@@ -1,4 +1,5 @@
 using SplitWise.Application.DTOs.Expense;
+using SplitWise.Application.Exceptions;
 using SplitWise.Application.Interfaces.Repositories;
 using SplitWise.Application.Interfaces.Services;
 using SplitWise.Domain.Entities;
@@ -9,14 +10,13 @@ namespace SplitWise.Infrastructure.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IExpenseRepository _expenseRepository;
-    private readonly IGroupRepository _groupRepository;
     private readonly IGroupMemberRepository _groupMemberRepository;
-    
-    public ExpenseService(IExpenseRepository expenseRepository, IGroupRepository groupRepository, IGroupMemberRepository groupMemberRepository)
+    private readonly IGroupAccessService _groupAccessService;
+    public ExpenseService(IExpenseRepository expenseRepository, IGroupMemberRepository groupMemberRepository, IGroupAccessService groupAccessService)
     {
         _expenseRepository = expenseRepository;
-        _groupRepository = groupRepository;
         _groupMemberRepository = groupMemberRepository;
+        _groupAccessService = groupAccessService;
     }
     public async Task<ExpenseResponse> CreateExpenseAsync(int currentUserId, int groupId, CreateExpenseRequest request)
     {
@@ -58,12 +58,9 @@ public class ExpenseService : IExpenseService
     }
 
     public async Task<List<ExpenseResponse>> GetGroupExpensesAsync(int currentUserId, int groupId)
-    { var group = await _groupRepository
-            .GetGroupByIdAsync(groupId, currentUserId);
-
-        if (group == null)
-            throw new Exception(
-                "No group found or you are not a member of this group.");
+    { 
+        await _groupAccessService
+            .GetGroupAsync(groupId, currentUserId);
 
         var expenses = await _expenseRepository
             .GetByGroupIdAsync(groupId);
@@ -90,9 +87,9 @@ public class ExpenseService : IExpenseService
     private async Task ValidateCreateExpenseRequestAsync(int currentUserId, int groupId, CreateExpenseRequest request)
     {
         if (request.TotalAmount <= 0)
-            throw new ArgumentException("Expense amount must be greater than zero.");
+            throw new ValidationException("Expense amount must be greater than zero.");
         if (request.Shares == null || request.Shares.Count == 0)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "At least one user is required.");
         if (request.SplitType == SplitType.Exact)
             ValidateExactSplit(request);
@@ -100,13 +97,12 @@ public class ExpenseService : IExpenseService
         if (request.SplitType == SplitType.Percentage)
             ValidatePercentageSplit(request);
         
-        var group = await _groupRepository.GetGroupByIdAsync(groupId, currentUserId);
-        if (group==null)
-            throw new Exception("No group found or you are not a member of this group.");
+        await _groupAccessService
+            .GetGroupAsync(groupId, currentUserId);
         var areActiveMembers = await _groupMemberRepository.AreActiveMembersAsync(groupId,
             request.Shares.Select(x=>x.UserId).Append(request.PaidBy).Distinct().ToList());
         if (!areActiveMembers)
-            throw new InvalidOperationException(
+            throw new ValidationException(
                 "All users must be active members of the group.");
     }
     private void ValidateExactSplit(CreateExpenseRequest request)
@@ -114,7 +110,7 @@ public class ExpenseService : IExpenseService
         var shares = request.Shares;
 
         if (shares.Any(x => x.Amount <= 0))
-            throw new ArgumentException(
+            throw new ValidationException(
                 "Share amount must be greater than zero.");
 
         var userIds = shares
@@ -122,13 +118,13 @@ public class ExpenseService : IExpenseService
             .ToList();
 
         if (userIds.Count != userIds.Distinct().Count())
-            throw new ArgumentException(
+            throw new ValidationException(
                 "A user cannot have multiple shares in the same expense.");
 
         var totalShares = shares.Sum(x => x.Amount);
 
         if (totalShares != request.TotalAmount)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "The total of all shares must equal the expense amount.");
     }
     
@@ -137,17 +133,17 @@ public class ExpenseService : IExpenseService
         var shares = request.Shares;
 
         if (shares.Any(x => x.Amount <= 0))
-            throw new ArgumentException(
+            throw new ValidationException(
                 "Percentage must be greater than zero.");
 
         if (shares.Select(x => x.UserId).Distinct().Count() != shares.Count)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "A user cannot have multiple shares in the same expense.");
 
         var totalPercentage = shares.Sum(x => x.Amount);
 
         if (totalPercentage != 100)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "The total percentage must equal 100.");
     }
     private void CalculateShareAmount(CreateExpenseRequest request, Expense expense)
@@ -220,15 +216,11 @@ public class ExpenseService : IExpenseService
             .GetByIdAsync(expenseId);
 
         if (expense == null)
-            throw new Exception("Expense not found.");
-
-        var group = await _groupRepository
-            .GetGroupByIdAsync(expense.GroupId, currentUserId);
-
-        if (group == null)
-            throw new Exception(
-                "Expense not found or you are not a member of this group.");
-
+            throw new NotFoundException("Expense not found.");
+        
+        await _groupAccessService
+            .GetGroupAsync(expense.GroupId, currentUserId);
+        
         return new ExpenseResponse
         {
             Id = expense.Id,

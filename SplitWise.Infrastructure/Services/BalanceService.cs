@@ -9,27 +9,25 @@ public class BalanceService : IBalanceService
     private readonly IGroupRepository _groupRepository;
     private readonly IExpenseRepository _expenseRepository;
     private readonly ISettlementRepository _settlementRepository;
-    
+    private readonly IGroupAccessService _groupAccessService;
     public BalanceService(
         IGroupRepository groupRepository,
         IExpenseRepository expenseRepository,
-            ISettlementRepository settlementRepository)
+        ISettlementRepository settlementRepository,
+        IGroupAccessService groupAccessService)
     {
         _groupRepository = groupRepository;
         _expenseRepository = expenseRepository;
         _settlementRepository = settlementRepository;
+        _groupAccessService = groupAccessService;
     }
 
     public async Task<List<GroupBalanceResponse>> GetGroupBalancesAsync(
         int currentUserId,
         int groupId)
     {
-        var group = await _groupRepository
-            .GetGroupByIdAsync(groupId, currentUserId);
-
-        if (group == null)
-            throw new Exception(
-                "No group found or you are not a member of this group.");
+         await _groupAccessService
+            .GetGroupAsync(groupId, currentUserId);
 
         var expenses = await _expenseRepository
             .GetByGroupIdAsync(groupId);

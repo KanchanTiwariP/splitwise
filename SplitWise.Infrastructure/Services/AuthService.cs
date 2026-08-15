@@ -1,4 +1,5 @@
 using SplitWise.Application.DTOs.Auth;
+using SplitWise.Application.Exceptions;
 using SplitWise.Application.Interfaces.Repositories;
 using SplitWise.Application.Interfaces.Services;
 using SplitWise.Domain.Entities;
@@ -20,7 +21,7 @@ public class AuthService :IAuthService
     {
         if (await _userRepository.EmailExistsAsync(request.Email))
         {
-            throw new Exception("Email already exists.");
+            throw new ValidationException("Email already exists.");
         } 
         var user = new User
         {
@@ -46,10 +47,10 @@ public class AuthService :IAuthService
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
         if (user == null)
-            throw new Exception("Invalid email or password.");
+            throw new ValidationException("Invalid email or password.");
         
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            throw new Exception("Invalid email or password.");
+            throw new ValidationException("Invalid email or password.");
         
         var token = _jwtTokenGenerator.GenerateToken(user);
         return new LoginResponse

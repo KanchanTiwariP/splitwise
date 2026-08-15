@@ -1,4 +1,5 @@
 using SplitWise.Application.DTOs.Group;
+using SplitWise.Application.Exceptions;
 using SplitWise.Application.Interfaces.Repositories;
 using SplitWise.Application.Interfaces.Services;
 using SplitWise.Domain.Entities;
@@ -10,11 +11,14 @@ public class GroupService :IGroupService
     private readonly IGroupRepository _groupRepository;
     private readonly  IUserRepository _userRepository;
     private readonly IGroupMemberRepository _groupMemberRepository;
-    public GroupService(IGroupRepository groupRepository,  IGroupMemberRepository groupMemberRepository, IUserRepository userRepository)
+    private readonly IGroupAccessService _groupAccessService;
+    
+    public GroupService(IGroupRepository groupRepository,  IGroupMemberRepository groupMemberRepository, IUserRepository userRepository, IGroupAccessService groupAccessService)
     {
         _groupRepository = groupRepository;
         _groupMemberRepository = groupMemberRepository;
         _userRepository = userRepository;
+        _groupAccessService = groupAccessService;
     }
     public async Task<List<GroupResponse>> GetUserGroupsAsync(int userId)
     {
@@ -30,11 +34,8 @@ public class GroupService :IGroupService
 
     public async Task<GroupResponse?> GetGroupByIdAsync(int groupId,int userId)
     {
-        var group = await _groupRepository
-            .GetGroupByIdAsync(groupId, userId);
-
-        if (group == null)
-            return null;
+        var group = await _groupAccessService
+            .GetGroupAsync(groupId, userId);
 
         return new GroupResponse
         {
@@ -84,23 +85,20 @@ public class GroupService :IGroupService
         int currentUserId,
         AddGroupMemberRequest request)
     {
-        var group = await _groupRepository
-            .GetGroupByIdAsync(groupId, currentUserId);
-
-        if (group == null)
-            throw new Exception("Group not found.");
+         await _groupAccessService
+            .GetGroupAsync(groupId, currentUserId);
 
         var user = await _userRepository
             .GetUserByIdAsync(request.UserId);
 
         if (user == null)
-            throw new Exception("User not found.");
+            throw new NotFoundException("User not found.");
 
         var alreadyMember = await _groupMemberRepository
             .IsActiveMemberAsync(groupId, request.UserId);
 
         if (alreadyMember)
-            throw new Exception("User is already a member of this group.");
+            throw new ValidationException("User is already a member of this group.");
 
         var member = new GroupMember
         {
@@ -115,13 +113,12 @@ public class GroupService :IGroupService
 
     public async Task<GroupResponse?> UpdateGroupAsync(int groupId, int currentUserId, UpdateGroupRequest request)
     {
-        var group = await _groupRepository.GetByIdAsync(groupId);
-        if (group == null)
-            return null;
+        var group = await _groupAccessService
+                                .GetGroupAsync(groupId, currentUserId);
 
         if (group.CreatedBy != currentUserId)
         {
-            throw new UnauthorizedAccessException("Only the group creator can update the group.");
+            throw new ForbiddenException("Only the group creator can update the group.");
         }
 
         group.Name = request.Name;

@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using SplitWise.API.Middleware;
 using SplitWise.Application.Interfaces.Services;
 using SplitWise.Infrastructure;
 using SplitWise.Infrastructure.Services;
@@ -45,6 +46,7 @@ public class Program
         builder.Services.AddScoped<IExpenseService, ExpenseService>();
         builder.Services.AddScoped<IBalanceService, BalanceService>();
         builder.Services.AddScoped<ISettlementService, SettlementService>();
+        builder.Services.AddScoped<IGroupAccessService, GroupAccessService>();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
         {
@@ -78,6 +80,7 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.MapControllers();
         app.Run();
     }

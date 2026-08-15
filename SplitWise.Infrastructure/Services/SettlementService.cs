@@ -1,4 +1,5 @@
 using SplitWise.Application.DTOs.Settlements;
+using SplitWise.Application.Exceptions;
 using SplitWise.Application.Interfaces.Repositories;
 using SplitWise.Application.Interfaces.Services;
 using SplitWise.Domain.Entities;
@@ -9,28 +10,24 @@ public class SettlementService : ISettlementService
 {
     private readonly IExpenseRepository _expenseRepository;
     private readonly IGroupMemberRepository _groupMemberRepository;
-    private readonly IGroupRepository _groupRepository;
     private readonly ISettlementRepository _settlementRepository;
+    private readonly IGroupAccessService _groupAccessService;
 
-    public SettlementService(IGroupRepository groupRepository, IExpenseRepository expenseRepository,
-        ISettlementRepository settlementRepository, IGroupMemberRepository groupMemberRepository)
+    public SettlementService(IExpenseRepository expenseRepository,
+        ISettlementRepository settlementRepository, IGroupMemberRepository groupMemberRepository, IGroupAccessService groupAccessService)
     {
-        _groupRepository = groupRepository;
         _expenseRepository = expenseRepository;
         _settlementRepository = settlementRepository;
         _groupMemberRepository = groupMemberRepository;
+        _groupAccessService = groupAccessService;
     }
 
     public async Task CreateSettlementAsync(int currentUserId, int groupId, CreateSettlementRequest request)
     {
         ValidateRequest(currentUserId, request);
 
-        var group = await _groupRepository
-            .GetGroupByIdAsync(groupId, currentUserId);
-
-        if (group == null)
-            throw new Exception(
-                "No group found or you are not a member of this group.");
+        await _groupAccessService
+            .GetGroupAsync(groupId, currentUserId);
 
         var userIds = new[]
         {
@@ -44,7 +41,7 @@ public class SettlementService : ISettlementService
                 userIds);
 
         if (!areActiveMembers)
-            throw new InvalidOperationException(
+            throw new ValidationException(
                 "Both users must be active members of the group.");
 
         var expenses = await _expenseRepository
@@ -60,7 +57,7 @@ public class SettlementService : ISettlementService
             settlements);
 
         if (request.Amount > amountOwed)
-            throw new InvalidOperationException(
+            throw new ValidationException(
                 $"Settlement amount cannot exceed the outstanding debt of {amountOwed}.");
 
         var settlement = new Settlement
@@ -82,15 +79,15 @@ public class SettlementService : ISettlementService
     {
         if (currentUserId != request.PayerId &&
             currentUserId != request.ReceiverId)
-            throw new UnauthorizedAccessException(
+            throw new ForbiddenException(
                 "Only the payer or receiver can record this settlement.");
 
         if (request.PayerId == request.ReceiverId)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "Payer and receiver must be different users.");
 
         if (request.Amount <= 0)
-            throw new ArgumentException(
+            throw new ValidationException(
                 "Settlement amount must be greater than zero.");
     }
 
