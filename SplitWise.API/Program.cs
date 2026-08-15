@@ -66,8 +66,19 @@ public class Program
         });
         builder.Services.AddAuthorization();
         
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("ReactClient", policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:5174")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+        
         var app = builder.Build();
-
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -77,10 +88,12 @@ public class Program
                 options.ConfigObject.AdditionalItems["persistAuthorization"] = true;
             });
         }
+        
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseCors("ReactClient");
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.MapControllers();
         app.Run();
     }
