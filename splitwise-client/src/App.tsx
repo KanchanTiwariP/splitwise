@@ -1,26 +1,15 @@
-import { login } from "./services/authSerivce";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
-   const handleLogin = async () => {
-    try {
-      const result = await login({
-        email: "",
-        password: "",
-      });
-
-      console.log("Login successful:", result);
-    } catch (error) {
-      console.error("Login failed:", error);
-    }
-  };
-
-  return (
-    <div>
-      <h1>SplitWise</h1>
-       <button onClick={handleLogin}>
-        Test Login
-      </button>
-    </div>
+return (
+     <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

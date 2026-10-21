@@ -9,13 +9,12 @@ public class User : BaseEntity
     public string Email { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public string PasswordHash { get; set; } = string.Empty;
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<GroupMember> GroupMembers { get; set; }= new List<GroupMember>();
     public ICollection<Group> CreatedGroups { get; set; } = new List<Group>();
     public ICollection<Expense> CreatedExpenses { get; set; } = new List<Expense>();
     public ICollection<Expense> PaidExpenses { get; set; } = new List<Expense>();
     public ICollection<ExpenseSplit> ExpenseSplits { get; set; } = new List<ExpenseSplit>();
-
     public ICollection<Settlement> PaymentsMade { get; set; } = new List<Settlement>();
-
     public ICollection<Settlement> PaymentsReceived { get; set; } = new List<Settlement>();
 } 

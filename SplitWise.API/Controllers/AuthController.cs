@@ -29,4 +29,21 @@ public class AuthController : ControllerBase
         var response = await _authService.LoginAsync(request);
         return Ok(response);
     }
+     
+    [AllowAnonymous]
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(RefreshTokenRequest request)
+    {
+        var response = await _authService.RefreshAsync(request.RefreshToken);
+        return Ok(response);
+    }
+    
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(
+        [FromBody] RefreshTokenRequest request)
+    {
+        await _authService.LogoutAsync(request.RefreshToken);
+        return NoContent();
+    }
 }

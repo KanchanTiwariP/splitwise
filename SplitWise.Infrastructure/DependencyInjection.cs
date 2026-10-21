@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<ISettlementRepository, SettlementRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         return services;
     }
 }

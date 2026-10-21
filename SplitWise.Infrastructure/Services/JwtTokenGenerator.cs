@@ -24,7 +24,12 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.GivenName, user.FirstName)
+            new Claim(ClaimTypes.GivenName, user.FirstName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(
+                JwtRegisteredClaimNames.Iat,
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(),
+                ClaimValueTypes.Integer64)
         };
 
         var key = new SymmetricSecurityKey(

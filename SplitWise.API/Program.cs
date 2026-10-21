@@ -47,7 +47,10 @@ public class Program
         builder.Services.AddScoped<IBalanceService, BalanceService>();
         builder.Services.AddScoped<ISettlementService, SettlementService>();
         builder.Services.AddScoped<IGroupAccessService, GroupAccessService>();
+        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            
             .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
@@ -90,8 +93,8 @@ public class Program
         }
         
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseCors("ReactClient");
         app.UseHttpsRedirection();
+        app.UseCors("ReactClient");
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
